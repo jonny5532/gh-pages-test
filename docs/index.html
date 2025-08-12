@@ -7,6 +7,13 @@
   src="https://unpkg.com/esp-web-tools@10/dist/web/install-button.js?module"
 ></script>
 
+<script>
+fetch('https://api.github.com/repos/dalathegreat/Battery-Emulator/releases').then(r=>r.json()).then(r=>{
+  console.log(r);
+});
+  
+</script>
+
 <p>If installation does not start, try holding down the BOOT button whilst connecting, until it starts erasing.</p>
 <p>If your device has no BOOT button, connect GND and pin 0 together instead.</p>
 
