@@ -1,5 +1,22 @@
 <!DOCTYPE html>
 <html>
+<style>
+html, body, * {
+    font: 18px sans-serif;
+}
+
+h1 {
+    font-size: 2em;
+    margin: 0.5em 0;
+}
+
+select {
+    display: block;
+    min-width: 30rem;
+    padding: 0.4rem;
+}
+
+</style>
 <body>
 
 <script
@@ -7,19 +24,83 @@
   src="https://unpkg.com/esp-web-tools@10/dist/web/install-button.js?module"
 ></script>
 
-<script>
-fetch('https://api.github.com/repos/dalathegreat/Battery-Emulator/releases').then(r=>r.json()).then(r=>{
-  console.log(r);
-});
+<h1>Battery Emulator Web Installer</h1>
+
+<p>This will install a factory image onto your device, over USB, through the web browser.</p>
+
+<p>Choose a release: <select id="release"><option value="">Choose...</option></select></p>
   
-</script>
+<p>Choose an image: <select id="image"><option></option></select></p>
+
+<div id="install" style="display: none">
 
 <p>If installation does not start, try holding down the BOOT button whilst connecting, until it starts erasing.</p>
 <p>If your device has no BOOT button, connect GND and pin 0 together instead.</p>
 
 <esp-web-install-button
-  manifest="manifest.json"
 ></esp-web-install-button>
+</div>
 
+<script>
+var releases_by_name = {};
+
+var sel = document.getElementById('release');
+fetch('https://api.github.com/repos/dalathegreat/Battery-Emulator/releases').then(r=>r.json()).then(r=>{
+    r.forEach(function(release) {
+        releases_by_name[release.tag_name] = release;
+        var opt = document.createElement('option');
+        opt.value = release.tag_name;
+        opt.textContent = release.name;
+        sel.appendChild(opt);
+    });
+});
+
+sel.addEventListener('change', function() {
+    var release = releases_by_name[sel.value];
+    var image_sel = document.getElementById('image');
+    image_sel.innerHTML = '';
+    // add empty option
+    var opt = document.createElement('option');
+    opt.value = '';
+    opt.textContent = 'Choose...';
+    image_sel.appendChild(opt);
+    release.assets.forEach(function(asset) {
+        if (asset.name.endsWith('.bin')) {
+            var opt = document.createElement('option');
+            opt.value = asset.browser_download_url;
+            opt.textContent = asset.name;
+            image_sel.appendChild(opt);
+        }
+    });
+    image_sel.value = image_sel.options[0].value;
+});
+
+var img = document.getElementById('image');
+img.addEventListener('change', function() {
+    var button = document.querySelector('esp-web-install-button');
+    button.image = img.value;
+
+    const manifest = {
+        "name": "Battery Emulator",
+        "version": sel.value,
+        "new_install_prompt_erase": true,
+        "builds": [
+            {
+                "chipFamily": "ESP32",
+                "improv": false,
+                "parts": [
+                    { "path": img.value, "offset": 0}
+                ]
+            }
+        ]
+    };
+    const json = JSON.stringify(manifest);
+    const blob = new Blob([json], {type: "application/json"});
+    document.querySelector("esp-web-install-button").manifest = URL.createObjectURL(blob);
+    document.getElementById("install").style.display = 'block';
+});
+  
+</script>
+  
 </body>
 </html>
