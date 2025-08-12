@@ -79,7 +79,7 @@ var img = document.getElementById('image');
 img.addEventListener('change', function() {
     var button = document.querySelector('esp-web-install-button');
     button.image = img.value;
-
+//img.value
     const manifest = {
         "name": "Battery Emulator",
         "version": sel.value,
@@ -89,7 +89,7 @@ img.addEventListener('change', function() {
                 "chipFamily": "ESP32",
                 "improv": false,
                 "parts": [
-                    { "path": img.value, "offset": 0}
+                    { "path": "https://release-assets.githubusercontent.com/github-production-release-asset/603860295/8d4919e4-4ce1-4488-b87e-e2285332c947", "offset": 0}
                 ]
             }
         ]
