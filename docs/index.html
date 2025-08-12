@@ -75,11 +75,8 @@ sel.addEventListener('change', function() {
     image_sel.value = image_sel.options[0].value;
 });
 
-var img = document.getElementById('image');
-img.addEventListener('change', function() {
-    var button = document.querySelector('esp-web-install-button');
-    button.image = img.value;
 
+function load_binary_uri(uri) {
     const manifest = {
         "name": "Battery Emulator",
         "version": sel.value,
@@ -89,7 +86,7 @@ img.addEventListener('change', function() {
                 "chipFamily": "ESP32",
                 "improv": false,
                 "parts": [
-                    { "path": img.value, "offset": 0}
+                    { "path": uri, "offset": 0}
                 ]
             }
         ]
@@ -98,6 +95,13 @@ img.addEventListener('change', function() {
     const blob = new Blob([json], {type: "application/json"});
     document.querySelector("esp-web-install-button").manifest = URL.createObjectURL(blob);
     document.getElementById("install").style.display = 'block';
+}
+    
+var img = document.getElementById('image');
+img.addEventListener('change', function() {
+    var script = document.createElement("script");
+    script.src = "https://github.com/jonny5532/Battery-Emulator/releases/download/v0.0.2test/binary.js?" + (new Date()).getTime();
+    document.body.appendChild(script);
 });
   
 </script>
